@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SSK Branch Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600&family=Inter:wght@400;600&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  .bp-root {
+    --ink: #1B2A3D;
+    --ink-soft: #2C3E52;
+    --paper: #F6F2E8;
+    --paper-dim: #ECE5D4;
+    --rule: #D8CDB4;
+    --teal: #2F6F62;
+    --teal-soft: #E4EDE9;
+    --rust: #B14A2C;
+    --rust-soft: #F3E1D6;
+    --brass: #A67C3D;
+    --brass-soft: #F0E4CC;
+    --slate: #6B7686;
+    --uniform-navy: #1F5FA8;
+    --font-display: 'Fraunces', Georgia, serif;
+    --font-body: 'Inter', system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+    font-family: var(--font-body);
+    background: var(--paper);
+    color: var(--ink);
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .bp-root *, .bp-root *::before, .bp-root *::after { box-sizing: border-box; }
+
+  /* ---------- Header ---------- */
+  .bp-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 26px; background: var(--ink); color: var(--paper);
+    border-bottom: 3px solid var(--brass); flex-wrap: wrap; gap: 10px;
+  }
+  .bp-brand { display: flex; align-items: center; gap: 14px; }
+  .bp-stamp {
+    width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--brass);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-weight: 600; font-size: 13px;
+    color: var(--brass); flex-shrink: 0;
+  }
+  .bp-brand-text h1 { font-family: var(--font-display); font-size: 18px; margin: 0; font-weight: 600; }
+  .bp-brand-text span { font-family: var(--font-mono); font-size: 10.5px; color: #B9C2CE; letter-spacing: 0.08em; text-transform: uppercase; }
+  .bp-header-right { display: flex; align-items: center; gap: 14px; }
+  .bp-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--teal); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 11px; flex-shrink: 0; }
+
+  /* ---------- Layout ---------- */
+  .bp-body { display: grid; grid-template-columns: 216px 1fr; min-height: 680px; }
+  @media (max-width: 820px) { .bp-body { grid-template-columns: 1fr; } }
+
+  /* ---------- Sidebar: department nav ---------- */
+  .bp-sidebar { background: var(--paper-dim); border-right: 1px solid var(--rule); padding: 18px 12px; }
+  .bp-nav-eyebrow { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--slate); padding: 0 8px; margin-bottom: 8px; }
+  .bp-nav-list { list-style: none; margin: 0 0 4px 0; padding: 0; }
+  .bp-nav-item {
+    display: flex; align-items: center; gap: 10px; padding: 9px 8px; border-radius: 7px;
+    cursor: pointer; font-size: 13px; color: var(--ink-soft); margin-bottom: 2px;
+    transition: background 0.12s, color 0.12s;
+  }
+  .bp-nav-item:hover { background: var(--brass-soft); }
+  .bp-nav-item.active { background: var(--ink); color: var(--paper); }
+  .bp-nav-icon {
+    width: 30px; height: 24px; flex-shrink: 0; border-radius: 6px; display: flex; align-items: center;
+    justify-content: center; font-family: var(--font-mono); font-size: 8.5px; font-weight: 700;
+    background: #fff; border: 1px solid var(--rule); color: var(--slate);
+  }
+  .bp-nav-item.active .bp-nav-icon { background: var(--brass); color: var(--ink); border-color: var(--brass); }
+
+  /* ---------- Main ---------- */
+  .bp-main { padding: 22px 26px 32px 26px; min-width: 0; }
+  .bp-page-title { margin-bottom: 16px; }
+  .bp-page-title h2 { font-family: var(--font-display); font-size: 21px; margin: 0 0 3px 0; font-weight: 600; }
+  .bp-page-title p { font-family: var(--font-body); font-size: 12.5px; color: var(--slate); margin: 0; }
+  .bp-subbranch-chip { display: inline-block; font-family: var(--font-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--teal); background: var(--teal-soft); padding: 3px 10px; border-radius: 12px; margin-left: 10px; vertical-align: middle; }
+
+  .bp-subbranch-selector { display: flex; align-items: center; gap: 9px; margin-bottom: 16px; }
+  .bp-subbranch-selector label { font-family: var(--font-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--slate); }
+  .bp-subbranch-selector select { font-family: var(--font-body); font-size: 12.5px; padding: 6px 10px; border: 1px solid var(--rule); border-radius: 6px; background: #fff; color: var(--ink); }
+
+  .bp-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  @media (max-width: 700px) { .bp-kpis { grid-template-columns: repeat(2, 1fr); } }
+  .bp-kpi { background: #fff; border: 1px solid var(--rule); border-radius: 8px; padding: 13px 15px; }
+  .bp-kpi-label { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--slate); margin-bottom: 7px; }
+  .bp-kpi-value { font-family: var(--font-display); font-size: 22px; font-weight: 600; color: var(--ink); }
+  .bp-kpi-delta { font-family: var(--font-mono); font-size: 10.5px; margin-top: 5px; color: var(--slate); }
+  .bp-kpi-dept-tag {
+    display: inline-block; font-family: var(--font-mono); font-size: 8.5px; text-transform: uppercase;
+    letter-spacing: 0.05em; color: var(--brass); background: var(--brass-soft); padding: 1px 6px;
+    border-radius: 10px; margin-bottom: 6px;
+  }
+
+  .bp-columns { display: grid; grid-template-columns: 1.2fr 1fr; gap: 16px; align-items: start; }
+  @media (max-width: 980px) { .bp-columns { grid-template-columns: 1fr; } }
+
+  .bp-panel { background: #fff; border: 1px solid var(--rule); border-radius: 8px; padding: 17px 19px; }
+  .bp-panel h3 { font-family: var(--font-display); font-size: 14.5px; font-weight: 600; margin: 0 0 4px 0; }
+  .bp-panel .bp-sub { font-size: 11.5px; color: var(--slate); margin: 0 0 13px 0; }
+
+  .bp-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 4px; }
+  .bp-table th { text-align: left; font-family: var(--font-mono); font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--slate); border-bottom: 1px solid var(--rule); padding: 0 8px 7px 0; }
+  .bp-table td { padding: 8px 8px 8px 0; border-bottom: 1px solid var(--paper-dim); }
+  .bp-table tr:last-child td { border-bottom: none; }
+  .bp-tag { display: inline-block; padding: 2px 8px; border-radius: 20px; font-family: var(--font-mono); font-size: 9.5px; font-weight: 600; }
+  .bp-tag.ontrack { background: var(--teal-soft); color: var(--teal); }
+  .bp-tag.watch { background: var(--brass-soft); color: var(--brass); }
+  .bp-tag.risk { background: var(--rust-soft); color: var(--rust); }
+  .bp-bar-track { width: 60px; height: 6px; background: var(--paper-dim); border-radius: 3px; overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 6px; }
+  .bp-bar-fill { height: 100%; border-radius: 3px; }
+
+  .bp-suggestions { display: flex; flex-direction: column; gap: 11px; }
+  .bp-note { border: 1px solid var(--rule); border-radius: 8px; background: var(--paper); padding: 12px 13px; display: flex; gap: 11px; align-items: flex-start; }
+  .bp-note-stamp { flex-shrink: 0; font-family: var(--font-mono); font-weight: 700; font-size: 9px; letter-spacing: 0.05em; padding: 4px 7px; border-radius: 4px; border: 1.5px solid currentColor; transform: rotate(-4deg); white-space: nowrap; margin-top: 2px; }
+  .bp-note-stamp.risk { color: var(--rust); }
+  .bp-note-stamp.watch { color: var(--brass); }
+  .bp-note-stamp.good { color: var(--teal); }
+  .bp-note-body p { margin: 0; font-size: 12px; line-height: 1.5; color: var(--ink-soft); }
+  .bp-note-body strong { color: var(--ink); }
+  .bp-note-meta { font-family: var(--font-mono); font-size: 9.5px; color: var(--slate); margin-top: 5px; }
+  .bp-note-dept { font-family: var(--font-mono); font-size: 9px; color: var(--brass); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 4px; }
+
+  .bp-search { width: 100%; padding: 8px 11px; border: 1px solid var(--rule); border-radius: 6px; background: var(--paper); font-family: var(--font-body); font-size: 12.5px; color: var(--ink); margin-bottom: 12px; }
+  .bp-search:focus { outline: 2px solid var(--teal); outline-offset: 1px; }
+  .bp-doc-list { list-style: none; margin: 0; padding: 0; }
+  .bp-doc { display: flex; align-items: center; gap: 10px; padding: 7px 6px; border-radius: 6px; cursor: pointer; font-size: 12.5px; color: var(--ink-soft); }
+  .bp-doc:hover { background: var(--brass-soft); }
+  .bp-doc-icon { width: 25px; height: 25px; flex-shrink: 0; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 8.5px; font-weight: 700; background: var(--paper); border: 1px solid var(--rule); color: var(--slate); }
+  .bp-doc-icon.pdf { color: var(--rust); border-color: var(--rust-soft); background: var(--rust-soft); }
+  .bp-doc-icon.sheet { color: var(--teal); border-color: var(--teal-soft); background: var(--teal-soft); }
+  .bp-doc-icon.doc { color: var(--brass); border-color: var(--brass-soft); background: var(--brass-soft); }
+  .bp-doc-meta { font-family: var(--font-mono); font-size: 10px; color: var(--slate); }
+  .bp-empty-search { font-size: 12px; color: var(--slate); padding: 8px 6px; font-style: italic; display: none; }
+
+  .bp-open-link {
+    display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; font-family: var(--font-mono);
+    font-size: 11.5px; color: var(--teal); background: var(--teal-soft); border: none; border-radius: 6px;
+    padding: 8px 12px; cursor: pointer;
+  }
+  .bp-open-link:hover { background: #d4e6df; }
+
+  .bp-sample-flag { font-family: var(--font-mono); font-size: 10px; color: var(--slate); background: var(--paper-dim); border: 1px dashed var(--rule); border-radius: 6px; padding: 8px 12px; margin-top: 16px; line-height: 1.5; }
+
+  .bp-tools { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .bp-tool-card { background: #fff; border: 1px solid var(--rule); border-radius: 8px; padding: 15px 16px; display: flex; flex-direction: column; gap: 8px; }
+  .bp-tool-card-head { display: flex; align-items: center; gap: 10px; }
+  .bp-tool-icon { width: 30px; height: 30px; border-radius: 6px; background: var(--ink); color: var(--brass); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-weight: 700; font-size: 10px; flex-shrink: 0; }
+  .bp-tool-card h4 { font-family: var(--font-display); font-size: 14px; font-weight: 600; margin: 0; }
+  .bp-tool-card p { font-size: 11.5px; color: var(--slate); margin: 0; line-height: 1.45; }
+  .bp-tool-open { align-self: flex-start; font-family: var(--font-mono); font-size: 11px; color: var(--teal); background: var(--teal-soft); border: none; border-radius: 6px; padding: 7px 12px; cursor: pointer; text-decoration: none; margin-top: 2px; }
+  .bp-tool-open:hover { background: #d4e6df; }
+  .bp-tool-open-disabled { color: var(--slate); background: var(--paper-dim); cursor: not-allowed; }
+
+  /* ---------- HR: organization chart ---------- */
+  /* A centered, wrapping stack of box "columns" rather than a fixed-width
+     horizontal tree — every row uses flex-wrap so it reflows to any screen
+     width instead of requiring horizontal scroll. */
+  .bp-org-chart { text-align: center; }
+  .bp-org-node { display: inline-flex; flex-direction: column; align-items: center; }
+  .bp-org-stem { width: 1px; height: 16px; background: var(--rule); }
+  /* Side-by-side siblings: one shared bar (the container's top border) that
+     every child drops its own short stem down from, so the line visibly
+     fans out from the parent to each of them. */
+  .bp-org-children-row {
+    display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start;
+    gap: 18px 16px; padding-top: 16px; position: relative;
+  }
+  .bp-org-bar { position: absolute; top: 0; height: 1px; background: var(--rule); }
+  .bp-org-children-row > .bp-org-node { position: relative; }
+  .bp-org-children-row > .bp-org-node::before {
+    content: ""; position: absolute; top: -16px; left: 50%; width: 1px; height: 16px;
+    background: var(--rule); transform: translateX(-50%);
+  }
+  /* Stacked siblings (e.g. service centers listed one under another): no
+     connector line, just spacing — each sits below the last. */
+  .bp-org-children-stack {
+    display: flex; flex-direction: column; align-items: center; gap: 20px;
+    margin-top: 32px;
+  }
+  .bp-org-avatar {
+    width: 120px; height: 180px; border-radius: 10px; background: var(--uniform-navy); color: #fff;
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 6px auto;
+    font-family: var(--font-mono); font-weight: 700; font-size: 26px; flex-shrink: 0; overflow: hidden;
+  }
+  .bp-org-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .bp-org-avatar-lead { background: var(--brass); color: var(--ink); }
+  .bp-org-avatar-vacant { background: transparent; border: 1px dashed var(--rule); }
+  .bp-org-box { display: inline-block; background: #fff; border: 1px solid var(--rule); border-radius: 8px; padding: 9px 14px; min-width: 120px; box-shadow: 0 1px 2px rgba(27,42,61,0.07); transition: box-shadow 0.12s, transform 0.12s; }
+  .bp-org-box:hover { box-shadow: 0 3px 8px rgba(27,42,61,0.12); transform: translateY(-1px); }
+  .bp-org-title { font-family: var(--font-mono); font-weight: 700; font-size: 11px; color: var(--ink); text-transform: uppercase; letter-spacing: 0.03em; }
+  .bp-org-name { font-family: var(--font-body); font-size: 11.5px; color: var(--slate); margin-top: 3px; }
+  .bp-org-box.bp-org-lead { background: var(--ink); border-color: var(--ink); }
+  .bp-org-box.bp-org-lead .bp-org-title { color: var(--brass); }
+  .bp-org-box.bp-org-lead .bp-org-name { color: var(--paper); }
+  .bp-org-box.bp-org-branch { background: var(--brass-soft); border: 1px dashed var(--brass); }
+  .bp-org-box.bp-org-branch .bp-org-title { color: var(--brass); font-size: 8.5px; }
+  .bp-org-box.bp-org-branch .bp-org-name { color: var(--ink-soft); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.02em; }
+  .bp-org-box.bp-org-vacant { background: var(--paper-dim); border: 1px dashed var(--rule); box-shadow: none; }
+  .bp-org-box.bp-org-vacant .bp-org-title { color: var(--slate); }
+  .bp-org-box.bp-org-vacant:hover { box-shadow: none; transform: none; }
+  .bp-org-vacant-tag { color: var(--rust); font-style: italic; }
+  .bp-hr-section { margin-bottom: 16px; }
+  .bp-section-num { display: inline-flex; align-items: center; justify-content: center; width: 19px; height: 19px; border-radius: 50%; background: var(--ink); color: var(--brass); font-family: var(--font-mono); font-weight: 700; font-size: 10px; margin-right: 8px; vertical-align: middle; position: relative; top: -1px; }
+
+  /* ---------- Login screen ---------- */
+  .bp-login-wrap { min-height: 660px; display: flex; align-items: center; justify-content: center; padding: 30px 18px; }
+  .bp-login-card { width: 100%; max-width: 400px; background: #fff; border: 1px solid var(--rule); border-radius: 12px; padding: 28px 26px; text-align: center; }
+  .bp-login-stamp { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--brass); color: var(--brass); font-family: var(--font-display); font-weight: 600; font-size: 15px; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px auto; }
+  .bp-login-card h2 { font-family: var(--font-display); font-size: 18px; margin: 0 0 6px 0; }
+  .bp-login-card .bp-sub { font-size: 12.5px; color: var(--slate); margin: 0 0 20px 0; }
+  .bp-google-btn {
+    width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
+    background: var(--ink); color: var(--paper); border: none; border-radius: 8px;
+    padding: 11px 14px; font-family: var(--font-body); font-size: 13.5px; font-weight: 600; cursor: pointer;
+  }
+  .bp-google-btn:hover { background: var(--ink-soft); }
+  .bp-google-g { width: 18px; height: 18px; border-radius: 50%; background: var(--brass); color: var(--ink); font-family: var(--font-mono); font-weight: 700; font-size: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .bp-account-list { list-style: none; margin: 16px 0 0 0; padding: 0; text-align: left; border-top: 1px solid var(--rule); padding-top: 12px; display: none; max-height: 300px; overflow-y: auto; }
+  .bp-account-list.open { display: block; }
+  .bp-account-item { display: flex; align-items: center; gap: 11px; padding: 8px 8px; border-radius: 7px; cursor: pointer; }
+  .bp-account-item:hover { background: var(--paper-dim); }
+  .bp-account-avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--teal); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 11px; flex-shrink: 0; }
+  .bp-account-name { font-size: 12.5px; color: var(--ink); font-weight: 600; }
+  .bp-account-email { font-family: var(--font-mono); font-size: 10px; color: var(--slate); }
+  .bp-account-role { font-family: var(--font-mono); font-size: 9px; color: var(--brass); text-transform: uppercase; letter-spacing: 0.03em; margin-top: 2px; }
+  .bp-login-note { font-family: var(--font-mono); font-size: 10px; color: var(--slate); background: var(--paper-dim); border: 1px dashed var(--rule); border-radius: 6px; padding: 9px 11px; margin-top: 20px; line-height: 1.5; text-align: left; }
+  .bp-login-status { font-family: var(--font-mono); font-size: 10.5px; color: var(--rust); margin-top: 10px; text-align: left; min-height: 0; }
+
+  /* ---------- Header identity / sign out ---------- */
+  .bp-identity { display: flex; align-items: center; gap: 9px; }
+  .bp-identity-text { text-align: right; line-height: 1.3; }
+  .bp-identity-name { font-size: 12.5px; font-weight: 600; }
+  .bp-identity-role { font-family: var(--font-mono); font-size: 9.5px; color: #9FADBC; text-transform: uppercase; letter-spacing: 0.04em; }
+  .bp-signout { font-family: var(--font-mono); font-size: 10.5px; color: var(--paper); background: var(--ink-soft); border: 1px solid #3E5064; border-radius: 6px; padding: 6px 10px; cursor: pointer; }
+  .bp-signout:hover { background: #3E5064; }
+
+  /* ---------- Admin: Staff & Roles page ---------- */
+  .bp-admin-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .bp-admin-table th { text-align: left; font-family: var(--font-mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--slate); border-bottom: 1px solid var(--rule); padding: 0 9px 8px 0; }
+  .bp-admin-table td { padding: 8px 9px 8px 0; border-bottom: 1px solid var(--paper-dim); vertical-align: middle; }
+  .bp-admin-table tr:last-child td { border-bottom: none; }
+  .bp-role-dropdown { font-family: var(--font-body); font-size: 11.5px; padding: 5px 7px; border: 1px solid var(--rule); border-radius: 6px; background: var(--paper); color: var(--ink); max-width: 190px; }
+  .bp-subbranch-fixed { font-family: var(--font-mono); font-size: 10px; color: var(--slate); }
+</style>
+</head>
+<body>
+<div class="bp-root">
+
+  <!-- LOGIN SCREEN -->
+  <div id="bpLoginScreen">
+    <div class="bp-login-wrap">
+      <div class="bp-login-card">
+        <div class="bp-login-stamp">SSK</div>
+        <h2>SSK Branch Portal</h2>
+        <p class="bp-sub">Sign in with your Google Workspace account to continue</p>
+        <button class="bp-google-btn" id="bpGoogleBtn"><span class="bp-google-g">G</span>Continue with Google Workspace</button>
+        <ul class="bp-account-list" id="bpAccountList"></ul>
+        <div class="bp-login-status" id="bpLoginStatus"></div>
+        <div class="bp-login-note">✎ Prototype: clicking "Continue" simulates picking a Google Workspace account. The real version would be an actual Google sign-in restricted to your organization's domain.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- APP SHELL (hidden until signed in) -->
+  <div id="bpApp" style="display:none;">
+    <div class="bp-header">
+      <div class="bp-brand">
+        <div class="bp-stamp">SSK</div>
+        <div class="bp-brand-text">
+          <h1>SSK Branch Network</h1>
+          <span>Loan Ops Portal</span>
+        </div>
+      </div>
+      <div class="bp-header-right">
+        <div class="bp-identity">
+          <div class="bp-avatar" id="bpAvatarInit">KC</div>
+          <div class="bp-identity-text">
+            <div class="bp-identity-name" id="bpIdentityName">Kittipong Charoensuk</div>
+            <div class="bp-identity-role" id="bpIdentityRole">Branch Manager</div>
+          </div>
+        </div>
+        <button class="bp-signout" id="bpSignOutBtn">Sign out</button>
+      </div>
+    </div>
+
+    <div class="bp-body">
+      <div class="bp-sidebar">
+        <div class="bp-nav-eyebrow">Menu</div>
+        <ul class="bp-nav-list" id="bpNavList"></ul>
+      </div>
+
+      <div class="bp-main" id="bpMain"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const subBranches = [
+    { id: "ssk", label: "SSK Main Branch" },
+    { id: "bigc", label: "Big C Mahachai Service Center" },
+    { id: "khokkham", label: "Khok Kham Service Center" },
+  ];
+  function sbLabel(id) { const s = subBranches.find(x => x.id === id); return s ? s.label : ""; }
+
+  const departments = {
+    hr: {
+      title: "Human Resources", subtitle: "Staffing, attendance & policy across the branch network", icon: "HR",
+
+      // Section 1 — Organization Structure. Paste the real structure here as
+      // { name, title, children: [...] } (see renderOrgNode) once provided;
+      // a placeholder note shows until then.
+      orgChart: {
+        role: "Branch", name: "SSK Main Branch", kind: "branch",
+        children: [
+          {
+            role: "BM", name: "Kornkham", kind: "lead",
+            children: [
+              { role: "THFO", name: "Gate" },
+              { role: "THLO", name: "Kratae" },
+              { role: "MMLO", name: "Mike" },
+              { role: "MMLO", name: "Simon" },
+              { role: "CSO", name: "Ting Ting" },
+              { role: "Branch FCR", name: "Thong" },
+            ],
+            // The 3 service centers report to BM directly and stack one
+            // under another (rather than sitting in the row above). ABM
+            // Joy oversees all 3 but is physically based at Big C
+            // Mahachai, so her box is listed as part of that center's own
+            // staff rather than as a separate level above the group.
+            childrenStack: [
+              {
+                role: "Service Center", name: "Big C Mahachai SC", kind: "branch",
+                children: [
+                  { role: "ABM", name: "Joy", kind: "lead" },
+                  { role: "THLO", name: "Kong" },
+                  { role: "MMLO", name: "Cathy" },
+                  { role: "MMLO", name: "Ko" },
+                ],
+              },
+              {
+                role: "Service Center", name: "Khok Kham SC", kind: "branch",
+                children: [
+                  { role: "THLO", name: "Ar" },
+                  { role: "MMLO", name: "Kao" },
+                ],
+              },
+              {
+                role: "Service Center", name: "Om Noi SC", kind: "branch",
+                children: [
+                  { role: "THLO", name: "Vacant", vacant: true },
+                  { role: "MMLO", name: "Wathon" },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+
+      // Section 2 — Staff Daily Check-in (already live).
+      checkInTool: { name: "Staff Check-in", url: "https://kornkhamsynpitarn.github.io/smsk-staff-check-in/", description: "Log or review daily attendance for your sub-branch.", icon: "IN" },
+
+      // Section 3 — Monthly OT Form (not built yet — shows as "Coming soon"
+      // until a url is set).
+      otFormTool: { name: "Monthly OT Form", url: null, description: "Submit overtime hours for the month.", icon: "OT" },
+
+      // Section 4 — Employee Work Schedule (monthly). Fill with
+      // { name, type, updated } entries once files/links exist.
+      workSchedule: [],
+
+      // Section 5 — Company Holidays (officially signed, per year). Fill
+      // with { date, name } entries once the list exists.
+      holidays: [],
+
+      // Section 6 — Other HR Documents.
+      files: [
+        { name: "Leave Application Form", type: "pdf", updated: "Aug 20" },
+        { name: "Staff Attendance Sheet", type: "sheet", updated: "today" },
+        { name: "Recruitment Checklist", type: "doc", updated: "Jul 15" },
+        { name: "Performance Review Template", type: "doc", updated: "Jun 10" },
+        { name: "HR Policy Manual", type: "pdf", updated: "Mar 2" },
+      ],
+
+      // Used only by the network-wide Home page flagship row, not the HR
+      // page itself (which no longer shows a generic KPI/suggestions block).
+      kpis: [
+        { label: "Staff on Leave Today", value: "3", delta: "of 20 total staff" },
+        { label: "Open Positions", value: "1", delta: "Field Collection Rep — Khok Kham" },
+        { label: "Avg. Attendance", value: "96.2%", delta: "↑ 0.4 pts this month" },
+      ],
+      suggestions: [
+        { stamp: "ACTION", type: "risk", html: "<strong>The Field Collection Rep role at Khok Kham has been open 30+ days</strong> — the newest, smallest-staffed center.", meta: "Based on: recruitment tracker" },
+        { stamp: "REVIEW", type: "watch", html: "<strong>2 staff are nearing 12 unplanned leave days</strong> this year — worth a check-in before it affects sub-branch coverage.", meta: "Based on: Staff Attendance Sheet" },
+        { stamp: "ON TRACK", type: "good", html: "<strong>Attendance has improved for 3 straight months</strong> network-wide, following the shift-swap policy update.", meta: "Based on: 90-day attendance trend" },
+      ],
+    },
+
+    admin: {
+      title: "Admin", subtitle: "Facilities, supplies & general operations across the network", icon: "ADM",
+      kpis: [
+        { label: "Open Facility Requests", value: "2", delta: "AC unit (SSK), door lock (Big C)" },
+        { label: "Visitors Today", value: "24", delta: "across all 3 locations" },
+        { label: "Supplies to Reorder", value: "1 item", delta: "Printer toner — SSK" },
+      ],
+      files: [
+        { name: "Purchase Requisition Form", type: "pdf", updated: "Aug 15" },
+        { name: "Facility Maintenance Request", type: "doc", updated: "today" },
+        { name: "Visitor Log", type: "sheet", updated: "today" },
+        { name: "Admin SOP Handbook", type: "pdf", updated: "Jan 20" },
+      ],
+      suggestions: [
+        { stamp: "ACTION", type: "risk", html: "<strong>AC unit at SSK Main Branch</strong> has been reported faulty twice this month — recommend prioritizing the maintenance request.", meta: "Based on: Facility Maintenance log" },
+        { stamp: "WATCH", type: "watch", html: "<strong>Printer toner stock is low at SSK</strong> — reorder before month-end to avoid delays.", meta: "Based on: supplies tracker" },
+      ],
+    },
+
+    collection: {
+      title: "Collections", subtitle: "Loan portfolio health & officer performance", icon: "COL",
+      tools: [
+        { name: "TDR", url: "https://kornkhamsynpitarn.github.io/TDR/", description: "Open the branch's TDR tool for collection tracking.", icon: "TDR" },
+      ],
+      files: [
+        { name: "Loan Application Form", type: "pdf", updated: "Aug 12" },
+        { name: "KYC Verification Checklist", type: "pdf", updated: "Jul 30" },
+        { name: "Collateral Valuation Sheet", type: "sheet", updated: "Aug 3" },
+        { name: "Restructuring Request", type: "doc", updated: "Jun 21" },
+        { name: "Field Visit Report", type: "doc", updated: "Aug 19" },
+        { name: "Demand Notice Template", type: "doc", updated: "Aug 1" },
+        { name: "Daily Collection Log", type: "sheet", updated: "today" },
+        { name: "Lending Policy Manual", type: "pdf", updated: "May 14" },
+      ],
+      kpiAggModes: ["avg", "avg", "sum", "sum"],
+      bySubBranch: {
+        ssk: {
+          kpis: [
+            { label: "Collection Rate", value: "93.1%", delta: "↑ 0.8 pts vs last month" },
+            { label: "Portfolio at Risk (30d)", value: "5.4%", delta: "↓ 0.6 pts vs last month" },
+            { label: "Active Loans", value: "214", delta: "↑ 9 new this month" },
+            { label: "Disbursed (MTD)", value: "₹19.8L", delta: "↑ 7% vs target" },
+          ],
+          table: {
+            title: "Officer Performance — SSK Main Branch", subtitle: "Collection rate against monthly target",
+            rows: [
+              { name: "Somchai Boonmee (Loan Officer, Thai)", portfolio: "₹8.4L", rate: 95, status: "ontrack", label: "On track" },
+              { name: "Thura Win (Loan Officer, Burmese)", portfolio: "₹7.1L", rate: 91, status: "ontrack", label: "On track" },
+              { name: "Anong Suksawat (Field Collection Rep)", portfolio: "₹4.3L", rate: 89, status: "watch", label: "Watch" },
+            ],
+          },
+          suggestions: [
+            { stamp: "FOLLOW UP", type: "watch", html: "<strong>5 borrowers at SSK Main Branch</strong> missed this month's due date after 6+ months of on-time payment.", meta: "Based on: payment history pattern" },
+            { stamp: "ON TRACK", type: "good", html: "<strong>Collection rate at SSK is up 0.8 pts</strong> — the strongest of the three sub-branches this month.", meta: "Based on: Loan Ledger" },
+          ],
+        },
+        bigc: {
+          kpis: [
+            { label: "Collection Rate", value: "86.4%", delta: "↓ 3.2 pts vs last month" },
+            { label: "Portfolio at Risk (30d)", value: "9.7%", delta: "↑ 2.1 pts vs last month" },
+            { label: "Active Loans", value: "98", delta: "↑ 3 new this month" },
+            { label: "Disbursed (MTD)", value: "₹8.6L", delta: "↓ 4% vs target" },
+          ],
+          table: {
+            title: "Officer Performance — Big C Mahachai Service Center", subtitle: "Collection rate against monthly target",
+            rows: [
+              { name: "Nattapong Chai (Loan Officer, Thai)", portfolio: "₹4.1L", rate: 84, status: "watch", label: "Watch" },
+              { name: "Aye Aye Mon (Loan Officer, Burmese)", portfolio: "₹2.9L", rate: 79, status: "risk", label: "Needs attention" },
+              { name: "Kanya Phromwong (Field Collection Rep)", portfolio: "₹1.6L", rate: 88, status: "watch", label: "Watch" },
+            ],
+          },
+          suggestions: [
+            { stamp: "AT RISK", type: "risk", html: "<strong>12 loans at Big C Mahachai crossed 30 days overdue</strong> this week, concentrated in Aye Aye Mon's portfolio.", meta: "Based on: Daily Collection Log" },
+            { stamp: "REVIEW", type: "watch", html: "<strong>Collection rate dropped 3.2 pts</strong> this month — the sharpest decline of the three sub-branches.", meta: "Based on: 90-day trend" },
+          ],
+        },
+        khokkham: {
+          kpis: [
+            { label: "Collection Rate", value: "84.8%", delta: "↓ 1.1 pts vs last month" },
+            { label: "Portfolio at Risk (30d)", value: "11.2%", delta: "↑ 0.9 pts vs last month" },
+            { label: "Active Loans", value: "100", delta: "↑ 2 new this month" },
+            { label: "Disbursed (MTD)", value: "₹8.0L", delta: "flat vs target" },
+          ],
+          table: {
+            title: "Officer Performance — Khok Kham Service Center", subtitle: "Collection rate against monthly target",
+            rows: [
+              { name: "Preecha Wattana (Loan Officer, Thai)", portfolio: "₹3.8L", rate: 82, status: "watch", label: "Watch" },
+              { name: "Zaw Lin (Loan Officer, Burmese)", portfolio: "₹2.6L", rate: 76, status: "risk", label: "Needs attention" },
+              { name: "Suda Rattanakul (Field Collection Rep)", portfolio: "₹1.6L", rate: 80, status: "watch", label: "Watch" },
+            ],
+          },
+          suggestions: [
+            { stamp: "AT RISK", type: "risk", html: "<strong>Khok Kham has the network's highest portfolio-at-risk</strong> at 11.2% — worth a closer look given it's the newest service center.", meta: "Based on: Loan Ledger" },
+            { stamp: "FOLLOW UP", type: "watch", html: "<strong>Zaw Lin's collection rate is the lowest across all sub-branches</strong> this month — may benefit from support from a more experienced officer.", meta: "Based on: officer-level comparison" },
+          ],
+        },
+      },
+    },
+
+    finance: {
+      title: "Finance", subtitle: "Cash position, expenses & budget requests", icon: "FIN",
+      files: [
+        { name: "Expense Reimbursement Form", type: "pdf", updated: "Aug 22" },
+        { name: "Cash Reconciliation Sheet", type: "sheet", updated: "today" },
+        { name: "Budget Request Form", type: "doc", updated: "Jul 5" },
+        { name: "Petty Cash Register", type: "sheet", updated: "today" },
+        { name: "Finance Policy Manual", type: "pdf", updated: "Feb 18" },
+      ],
+      kpiAggModes: ["sum", "sum", "sum"],
+      bySubBranch: {
+        ssk: {
+          kpis: [
+            { label: "Branch Cash Position", value: "₹8.1L", delta: "within limit" },
+            { label: "Monthly Expenses", value: "₹1.6L", delta: "↓ 5% vs budget" },
+            { label: "Pending Reimbursements", value: "2", delta: "₹6,200 total" },
+          ],
+          suggestions: [
+            { stamp: "ON TRACK", type: "good", html: "<strong>SSK expenses are 5% under budget</strong> this month.", meta: "Based on: Cash Reconciliation Sheet" },
+          ],
+        },
+        bigc: {
+          kpis: [
+            { label: "Branch Cash Position", value: "₹3.9L", delta: "within limit" },
+            { label: "Monthly Expenses", value: "₹0.7L", delta: "↑ 2% vs budget" },
+            { label: "Pending Reimbursements", value: "1", delta: "₹4,100 total" },
+          ],
+          suggestions: [
+            { stamp: "WATCH", type: "watch", html: "<strong>Big C Mahachai is slightly over budget</strong> this month — mainly transport costs.", meta: "Based on: Cash Reconciliation Sheet" },
+          ],
+        },
+        khokkham: {
+          kpis: [
+            { label: "Branch Cash Position", value: "₹2.2L", delta: "within limit" },
+            { label: "Monthly Expenses", value: "₹0.5L", delta: "↓ 8% vs budget" },
+            { label: "Pending Reimbursements", value: "1", delta: "₹3,600 total, 12 days pending" },
+          ],
+          suggestions: [
+            { stamp: "FOLLOW UP", type: "watch", html: "<strong>1 reimbursement at Khok Kham has been pending 12 days</strong> — worth checking on approval status.", meta: "Based on: Expense Reimbursement tracker" },
+          ],
+        },
+      },
+    },
+
+    cs: {
+      title: "Customer Service", subtitle: "Complaints, service requests & satisfaction", icon: "CS",
+      files: [
+        { name: "Customer Complaint Form", type: "pdf", updated: "Aug 24" },
+        { name: "Service Request Form", type: "doc", updated: "today" },
+        { name: "Feedback Log", type: "sheet", updated: "today" },
+        { name: "Customer Service SOP", type: "pdf", updated: "May 9" },
+      ],
+      kpiAggModes: ["sum", "avg", "avg"],
+      bySubBranch: {
+        ssk: {
+          kpis: [
+            { label: "Open Complaints", value: "1", delta: "within 48-hr target" },
+            { label: "Avg. Resolution Time", value: "1.4 days", delta: "↓ 0.2 days vs last month" },
+            { label: "Satisfaction Score", value: "4.5/5", delta: "↑ 0.2 this month" },
+          ],
+          suggestions: [
+            { stamp: "ON TRACK", type: "good", html: "<strong>SSK has the network's highest satisfaction score</strong> at 4.5/5.", meta: "Based on: Feedback Log" },
+          ],
+        },
+        bigc: {
+          kpis: [
+            { label: "Open Complaints", value: "1", delta: "past 48-hr target" },
+            { label: "Avg. Resolution Time", value: "2.3 days", delta: "↑ 0.4 days vs last month" },
+            { label: "Satisfaction Score", value: "4.0/5", delta: "flat vs last month" },
+          ],
+          suggestions: [
+            { stamp: "FOLLOW UP", type: "watch", html: "<strong>1 complaint at Big C is past the 48-hour target</strong>, related to a loan disbursement delay.", meta: "Based on: Complaint tracker" },
+          ],
+        },
+        khokkham: {
+          kpis: [
+            { label: "Open Complaints", value: "1", delta: "within 48-hr target" },
+            { label: "Avg. Resolution Time", value: "1.9 days", delta: "↓ 0.1 days vs last month" },
+            { label: "Satisfaction Score", value: "4.1/5", delta: "↑ 0.1 this month" },
+          ],
+          suggestions: [
+            { stamp: "ON TRACK", type: "good", html: "<strong>Satisfaction at Khok Kham is trending up</strong> slightly despite being the newest center.", meta: "Based on: Feedback Log" },
+          ],
+        },
+      },
+    },
+  };
+
+  const roles = [
+    { id: "manager", label: "Branch Manager", dept: null },
+    { id: "assistantmanager", label: "Assistant Branch Manager", dept: null },
+    { id: "loanofficerthai", label: "Loan Officer (Thai)", dept: "collection" },
+    { id: "loanofficerburmese", label: "Loan Officer (Burmese)", dept: "collection" },
+    { id: "csofficer", label: "Customer Service Officer", dept: "cs" },
+    { id: "financeofficer", label: "Finance Officer", dept: "finance" },
+    { id: "fieldcollectionrep", label: "Branch Field Collection Representative", dept: "collection" },
+  ];
+  function roleOf(user) { return roles.find(r => r.id === user.roleId); }
+
+  // Live staff data is fetched from the Apps Script Web App below and
+  // replaces this sample directory once it loads successfully. Paste your
+  // deployed Web app URL here — see apps-script/StaffDirectoryApi.gs.
+  const STAFF_API_URL = "https://script.google.com/macros/s/AKfycbw1yp3LcfJCsKaqePcNMzZob4hx81oO0g4bSKicyX04MLoEG-C-zmWCgasMcl3-_a6axA/exec";
+
+  const sampleDirectory = [
+    { email: "kittipong.c@ssk-branch.co", name: "Kittipong Charoensuk", roleId: "manager", subBranch: null, initials: "KC" },
+    { email: "duangkamol.s@ssk-branch.co", name: "Duangkamol Srisuk", roleId: "assistantmanager", subBranch: null, initials: "DS" },
+    { email: "somchai.b@ssk-branch.co", name: "Somchai Boonmee", roleId: "loanofficerthai", subBranch: "ssk", initials: "SB" },
+    { email: "nattapong.c@ssk-branch.co", name: "Nattapong Chai", roleId: "loanofficerthai", subBranch: "bigc", initials: "NC" },
+    { email: "preecha.w@ssk-branch.co", name: "Preecha Wattana", roleId: "loanofficerthai", subBranch: "khokkham", initials: "PW" },
+    { email: "thura.w@ssk-branch.co", name: "Thura Win", roleId: "loanofficerburmese", subBranch: "ssk", initials: "TW" },
+    { email: "ayeaye.m@ssk-branch.co", name: "Aye Aye Mon", roleId: "loanofficerburmese", subBranch: "bigc", initials: "AM" },
+    { email: "zaw.l@ssk-branch.co", name: "Zaw Lin", roleId: "loanofficerburmese", subBranch: "khokkham", initials: "ZL" },
+    { email: "wanida.c@ssk-branch.co", name: "Wanida Chaiyaporn", roleId: "csofficer", subBranch: "ssk", initials: "WC" },
+    { email: "moemoe.a@ssk-branch.co", name: "Moe Moe Aung", roleId: "csofficer", subBranch: "bigc", initials: "MA" },
+    { email: "siriporn.k@ssk-branch.co", name: "Siriporn Kaewkla", roleId: "csofficer", subBranch: "khokkham", initials: "SK" },
+    { email: "ploy.s@ssk-branch.co", name: "Ploy Sirichai", roleId: "financeofficer", subBranch: "ssk", initials: "PS" },
+    { email: "narin.s@ssk-branch.co", name: "Narin Suwan", roleId: "financeofficer", subBranch: "bigc", initials: "NS" },
+    { email: "htet.a@ssk-branch.co", name: "Htet Aung", roleId: "financeofficer", subBranch: "khokkham", initials: "HA" },
+    { email: "anong.s@ssk-branch.co", name: "Anong Suksawat", roleId: "fieldcollectionrep", subBranch: "ssk", initials: "AS" },
+    { email: "kanya.p@ssk-branch.co", name: "Kanya Phromwong", roleId: "fieldcollectionrep", subBranch: "bigc", initials: "KP" },
+    { email: "suda.r@ssk-branch.co", name: "Suda Rattanakul", roleId: "fieldcollectionrep", subBranch: "khokkham", initials: "SR" },
+  ];
+
+  let directory = sampleDirectory.slice();
+
+  let currentUser = null;
+  let activeNav = "home";
+  const deptSubBranchSelection = {}; // manager-only: which sub-branch view is selected per department
+
+  function fileIcon(f) { return `<span class="bp-doc-icon ${f.type}">${f.type.toUpperCase().slice(0,3)}</span>`; }
+
+  function renderFileList(files, opts) {
+    opts = opts || {};
+    const searchId = opts.searchId || "";
+    return `
+      ${opts.search ? `<input class="bp-search" id="${searchId}" type="text" placeholder="Search files in this department…" />` : ""}
+      <ul class="bp-doc-list" id="${searchId}List">
+        ${files.map(f => `<li class="bp-doc" data-name="${f.name.toLowerCase()}">${fileIcon(f)}<div><div>${f.name}</div><div class="bp-doc-meta">Updated ${f.updated}</div></div></li>`).join("")}
+      </ul>
+      ${opts.search ? `<div class="bp-empty-search" id="${searchId}Empty">No matching files.</div>` : ""}
+    `;
+  }
+
+  function renderSuggestions(list, opts) {
+    opts = opts || {};
+    return `<div class="bp-suggestions">${list.map(s => `
+      <div class="bp-note">
+        <span class="bp-note-stamp ${s.type}">${s.stamp}</span>
+        <div class="bp-note-body">
+          <p>${s.html}</p>
+          ${opts.showDept && s.dept ? `<div class="bp-note-dept">${s.dept}</div>` : ""}
+          <div class="bp-note-meta">${s.meta}</div>
+        </div>
+      </div>`).join("")}</div>`;
+  }
+
+  function renderKpis(kpis, opts) {
+    opts = opts || {};
+    return `<div class="bp-kpis">${kpis.map(k => `
+      <div class="bp-kpi">
+        ${opts.showDept && k.dept ? `<div class="bp-kpi-dept-tag">${k.dept}</div><br/>` : ""}
+        <div class="bp-kpi-label">${k.label}</div>
+        <div class="bp-kpi-value">${k.value}</div>
+        <div class="bp-kpi-delta">${k.delta}</div>
+      </div>`).join("")}</div>`;
+  }
+
+  function renderTools(tools) {
+    if (!tools || !tools.length) return "";
+    return `<div class="bp-tools">${tools.map(t => `
+      <div class="bp-tool-card">
+        <div class="bp-tool-card-head"><span class="bp-tool-icon">${t.icon || "GO"}</span><h4>${t.name}</h4></div>
+        <p>${t.description}</p>
+        ${t.url
+          ? `<a class="bp-tool-open" href="${t.url}" target="_blank" rel="noopener noreferrer">Open tool →</a>`
+          : `<span class="bp-tool-open bp-tool-open-disabled">Coming soon</span>`}
+      </div>`).join("")}</div>`;
+  }
+
+  function renderEmptyState(text) {
+    return `<div class="bp-sample-flag" style="margin-top:0;">✎ ${text}</div>`;
+  }
+
+  // Sheet Nick Name cells are formatted "ไทย - English" — pull out whichever
+  // side has Latin letters, matching the Apps Script's own extraction.
+  function extractEnglishNickname(raw) {
+    const str = String(raw || "").trim();
+    const parts = str.split(/\s*-\s*/);
+    for (const p of parts) {
+      if (/[A-Za-z]/.test(p)) return p.trim();
+    }
+    return str;
+  }
+
+  // Org chart nodes use nicknames (e.g. "Kratae"), not legal names, so match
+  // against the live staff directory's own Nick Name column — not `name`.
+  // An exact match (after extracting the English part) is tried first so a
+  // short name like "Ko" can't accidentally match a longer one that merely
+  // contains it, like "Kong" — substring matching only kicks in as a
+  // fallback for spelling mismatches (e.g. "Kornkham" on the box vs "Korn"
+  // in the sheet).
+  function findStaffByNickname(nickname) {
+    const norm = String(nickname || "").trim().toLowerCase();
+    if (!norm) return null;
+    const exact = directory.find(u => extractEnglishNickname(u.nickName).toLowerCase() === norm);
+    if (exact) return exact;
+    return directory.find(u => {
+      const un = String(u.nickName || "").trim().toLowerCase();
+      return un && (un.includes(norm) || norm.includes(un));
+    }) || null;
+  }
+
+  // Shows the real photo once the Google Sheet has a Photo column for that
+  // person (matched via nickname); otherwise falls back to a manual `photo`
+  // set directly on the node, then to an initials placeholder. Service
+  // Center boxes are locations, not people, so they get no avatar at all.
+  function renderOrgAvatar(node) {
+    if (node.kind === "branch") return "";
+    if (node.vacant) return `<div class="bp-org-avatar bp-org-avatar-vacant"></div>`;
+    const cls = node.kind === "lead" ? "bp-org-avatar-lead" : "";
+    const live = findStaffByNickname(node.name);
+    const photo = (live && live.photo) || node.photo;
+    const initials = initialsFor(node.name);
+    // If the photo fails to load (broken link, momentary network hiccup),
+    // fall back to the initials tile instead of a broken-image icon.
+    if (photo) {
+      return `<div class="bp-org-avatar" data-fallback-cls="${cls}" data-initials="${initials}">
+        <img src="${photo}" alt="${node.name}" onerror="if (this.parentElement.dataset.fallbackCls) this.parentElement.classList.add(this.parentElement.dataset.fallbackCls); this.parentElement.textContent = this.parentElement.dataset.initials;" />
+      </div>`;
+    }
+    return `<div class="bp-org-avatar ${cls}">${initials}</div>`;
+  }
+
+  function renderOrgBox(node) {
+    const cls = node.vacant ? "bp-org-vacant" : node.kind ? `bp-org-${node.kind}` : "";
+    return `${renderOrgAvatar(node)}
+    <div class="bp-org-box ${cls}">
+      <div class="bp-org-title">${node.role}</div>
+      <div class="bp-org-name">${node.vacant ? `<span class="bp-org-vacant-tag">Vacant</span>` : node.name}</div>
+    </div>`;
+  }
+
+  // Renders each node as a self-contained, centered column (box + its own
+  // subtree beneath it) that wraps via flexbox rather than a fixed-width
+  // horizontal tree — so it reflows to any screen width with no side
+  // scrolling, instead of one ever-widening row of connector lines.
+  // `children` renders as one wrapping fan-out row (a sub-manager with
+  // their own subtree just renders that subtree beneath their own box,
+  // inside the same row). `childrenStack` renders as a second group
+  // stacked vertically below that row — for groups that should list one
+  // under another (e.g. service centers) rather than side-by-side.
+  function renderOrgSection(node) {
+    const rowChildren = node.children || [];
+    const stackChildren = node.childrenStack || [];
+    if (!rowChildren.length && !stackChildren.length) return `<div class="bp-org-node">${renderOrgBox(node)}</div>`;
+    return `<div class="bp-org-node">
+      ${renderOrgBox(node)}
+      ${rowChildren.length ? `<div class="bp-org-stem"></div><div class="bp-org-children-row"><div class="bp-org-bar"></div>${rowChildren.map(renderOrgSection).join("")}</div>` : ""}
+      ${stackChildren.length ? `<div class="bp-org-children-stack">${stackChildren.map(renderOrgSection).join("")}</div>` : ""}
+    </div>`;
+  }
+
+  function renderOrgChart(root) {
+    return `<div class="bp-org-chart">${renderOrgSection(root)}</div>`;
+  }
+
+  function renderHolidays(holidays) {
+    if (!holidays || !holidays.length) return renderEmptyState("Waiting for this year's officially signed holiday list.");
+    return `<table class="bp-table">
+      <thead><tr><th>Date</th><th>Holiday</th></tr></thead>
+      <tbody>${holidays.map(h => `
+        <tr>
+          <td style="font-family: var(--font-mono); font-size: 11px; color: var(--slate); white-space: nowrap;">${h.date}</td>
+          <td>${h.name}</td>
+        </tr>`).join("")}</tbody>
+    </table>`;
+  }
+
+  function renderTable(table) {
+    const showSb = !!table.showSubBranchCol;
+    return `
+      <h3>${table.title}</h3>
+      <p class="bp-sub">${table.subtitle}</p>
+      <table class="bp-table">
+        <thead><tr><th>Officer</th>${showSb ? "<th>Sub-Branch</th>" : ""}<th>Portfolio</th><th>Collection</th><th>Status</th></tr></thead>
+        <tbody>
+          ${table.rows.map(o => `
+            <tr>
+              <td>${o.name}</td>
+              ${showSb ? `<td style="font-family: var(--font-mono); font-size: 10.5px; color: var(--slate);">${o.subBranch}</td>` : ""}
+              <td style="font-family: var(--font-mono); font-size: 11px; color: var(--slate);">${o.portfolio}</td>
+              <td>
+                <span class="bp-bar-track"><span class="bp-bar-fill" style="width:${o.rate}%; background:${o.rate>=92?'#2F6F62':o.rate>=85?'#A67C3D':'#B14A2C'}"></span></span>
+                <span style="font-family: var(--font-mono); font-size: 10.5px;">${o.rate}%</span>
+              </td>
+              <td><span class="bp-tag ${o.status}">${o.label}</span></td>
+            </tr>`).join("")}
+        </tbody>
+      </table>`;
+  }
+
+  function parseFirstNum(str) { const m = String(str).match(/[\d.]+/); return m ? parseFloat(m[0]) : 0; }
+
+  function aggregateKpi(deptKey, kpiIndex, mode) {
+    const d = departments[deptKey];
+    const vals = subBranches.map(sb => d.bySubBranch[sb.id].kpis[kpiIndex]);
+    const nums = vals.map(v => parseFirstNum(v.value));
+    const sum = nums.reduce((a, b) => a + b, 0);
+    const result = mode === "sum" ? sum : sum / nums.length;
+    const sample = vals[0].value;
+    let formatted;
+    if (sample.includes("%")) formatted = result.toFixed(1) + "%";
+    else if (sample.includes("₹")) formatted = "₹" + result.toFixed(1) + "L";
+    else if (sample.includes("/5")) formatted = result.toFixed(1) + "/5";
+    else if (sample.toLowerCase().includes("day")) formatted = result.toFixed(1) + " days";
+    else formatted = Math.round(result).toLocaleString();
+    return { label: vals[0].label, value: formatted, delta: "Combined across all 3 sub-branches" };
+  }
+
+  function topSuggestionAcrossBranches(deptKey) {
+    const d = departments[deptKey];
+    for (const sb of subBranches) {
+      const risky = d.bySubBranch[sb.id].suggestions.find(s => s.type === "risk");
+      if (risky) return Object.assign({}, risky, { dept: d.title + " · " + sb.label });
+    }
+    const sb0 = subBranches[0];
+    return Object.assign({}, d.bySubBranch[sb0.id].suggestions[0], { dept: d.title + " · " + sb0.label });
+  }
+
+  function getDeptViewData(deptKey, selection) {
+    const d = departments[deptKey];
+    if (!d.bySubBranch) return { kpis: d.kpis, suggestions: d.suggestions, table: d.table || null };
+
+    if (selection === "all") {
+      const kpis = d.kpiAggModes.map((mode, i) => aggregateKpi(deptKey, i, mode));
+      const suggestions = [];
+      subBranches.forEach(sb => {
+        d.bySubBranch[sb.id].suggestions.forEach(s => suggestions.push(Object.assign({}, s, { dept: sb.label })));
+      });
+      let table = null;
+      if (d.bySubBranch.ssk.table) {
+        const rows = [];
+        subBranches.forEach(sb => {
+          d.bySubBranch[sb.id].table.rows.forEach(r => rows.push(Object.assign({}, r, { subBranch: sb.label })));
+        });
+        table = { title: "Officer Performance — All Sub-Branches", subtitle: "Collection rate against monthly target, network-wide", rows, showSubBranchCol: true };
+      }
+      return { kpis, suggestions, table, isAll: true };
+    }
+
+    const sd = d.bySubBranch[selection];
+    return { kpis: sd.kpis, suggestions: sd.suggestions, table: sd.table || null, isAll: false };
+  }
+
+  function buildNav(user) {
+    const items = [{ id: "home", label: "Home", icon: "HOME" }];
+    Object.keys(departments).forEach(k => items.push({ id: k, label: departments[k].title, icon: departments[k].icon }));
+    if (user.roleId === "manager") items.push({ id: "staffroles", label: "Staff & Roles", icon: "ADM" });
+    return items;
+  }
+
+  function renderNav(user) {
+    const navList = document.getElementById("bpNavList");
+    navList.innerHTML = buildNav(user).map(n => `<li class="bp-nav-item" data-nav="${n.id}"><span class="bp-nav-icon">${n.icon}</span>${n.label}</li>`).join("");
+    document.querySelectorAll(".bp-nav-item").forEach(el => el.addEventListener("click", () => setActive(el.dataset.nav)));
+  }
+
+  function renderAccountList() {
+    const list = document.getElementById("bpAccountList");
+    list.innerHTML = directory.map(u => `
+      <li class="bp-account-item" data-email="${u.email}">
+        <div class="bp-account-avatar">${u.initials}</div>
+        <div>
+          <div class="bp-account-name">${u.name}</div>
+          <div class="bp-account-email">${u.email}</div>
+          <div class="bp-account-role">${roleOf(u).label}${u.subBranch ? " · " + sbLabel(u.subBranch) : ""}</div>
+        </div>
+      </li>`).join("");
+    list.querySelectorAll(".bp-account-item").forEach(el => el.addEventListener("click", () => signIn(el.dataset.email)));
+  }
+
+  function signIn(email) {
+    const user = directory.find(u => u.email === email);
+    if (!user) return;
+    currentUser = user;
+    document.getElementById("bpLoginScreen").style.display = "none";
+    document.getElementById("bpApp").style.display = "block";
+    document.getElementById("bpAvatarInit").textContent = user.initials;
+    document.getElementById("bpIdentityName").textContent = user.name;
+    document.getElementById("bpIdentityRole").textContent = roleOf(user).label + (user.subBranch ? " · " + sbLabel(user.subBranch) : "");
+    renderNav(user);
+    setActive("home");
+  }
+
+  function signOut() {
+    currentUser = null;
+    document.getElementById("bpApp").style.display = "none";
+    document.getElementById("bpLoginScreen").style.display = "block";
+    document.getElementById("bpAccountList").classList.remove("open");
+  }
+
+  document.getElementById("bpGoogleBtn").addEventListener("click", () => document.getElementById("bpAccountList").classList.add("open"));
+  document.getElementById("bpSignOutBtn").addEventListener("click", signOut);
+  renderAccountList();
+  loadStaffDirectory();
+
+  function initialsFor(name) {
+    const parts = String(name || "").trim().split(/\s+/);
+    return ((parts[0] ? parts[0][0] : "") + (parts[1] ? parts[1][0] : "")).toUpperCase();
+  }
+
+  async function loadStaffDirectory() {
+    if (!STAFF_API_URL) return; // not configured yet — keep showing sample data
+    const statusEl = document.getElementById("bpLoginStatus");
+    try {
+      const res = await fetch(STAFF_API_URL);
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const data = await res.json();
+      const staff = (data.staff || [])
+        .filter(s => s.email && s.roleId)
+        .map(s => ({
+          email: String(s.email).trim().toLowerCase(),
+          name: s.name || s.email,
+          nickName: s.nickName || "",
+          roleId: s.roleId,
+          subBranch: s.subBranch || null,
+          initials: s.initials || initialsFor(s.name),
+          photo: s.photo || "",
+        }));
+      if (!staff.length) throw new Error("no staff rows matched");
+      directory = staff;
+      statusEl.textContent = "";
+      renderAccountList();
+      if (currentUser) setActive(activeNav);
+    } catch (err) {
+      statusEl.textContent = "⚠ Couldn't load live staff data (" + err.message + ") — showing sample accounts instead.";
+    }
+  }
+
+  function attachSearch(searchId) {
+    const input = document.getElementById(searchId);
+    if (!input) return;
+    const list = document.getElementById(searchId + "List");
+    const empty = document.getElementById(searchId + "Empty");
+    const items = Array.from(list.querySelectorAll(".bp-doc"));
+    input.addEventListener("input", function() {
+      const q = this.value.trim().toLowerCase();
+      let visible = 0;
+      items.forEach(item => {
+        const match = item.dataset.name.includes(q);
+        item.style.display = match ? "" : "none";
+        if (match) visible++;
+      });
+      empty.style.display = (visible === 0 && q !== "") ? "block" : "none";
+    });
+  }
+
+  function renderSectionHead(num, title, sub) {
+    return `<h3><span class="bp-section-num">${num}</span>${title}</h3><p class="bp-sub">${sub}</p>`;
+  }
+
+  function renderHrPage() {
+    const d = departments.hr;
+    const main = document.getElementById("bpMain");
+    main.innerHTML = `
+      <div class="bp-page-title"><h2>${d.title}</h2><p>${d.subtitle}</p></div>
+
+      <div class="bp-panel bp-hr-section">
+        ${renderSectionHead(1, "Organization Structure", "Reporting lines across the branch")}
+        ${d.orgChart ? renderOrgChart(d.orgChart) : renderEmptyState("Waiting for your organization chart — send the structure and I'll build it here.")}
+      </div>
+
+      <div class="bp-panel bp-hr-section">
+        ${renderSectionHead(2, "Staff Daily Check-in", "Log or review daily attendance")}
+        ${renderTools([d.checkInTool])}
+      </div>
+
+      <div class="bp-panel bp-hr-section">
+        ${renderSectionHead(3, "Monthly OT Form", "Submit overtime hours for the month")}
+        ${renderTools([d.otFormTool])}
+      </div>
+
+      <div class="bp-panel bp-hr-section">
+        ${renderSectionHead(4, "Employee Work Schedule", "Monthly shift schedule")}
+        ${d.workSchedule.length ? renderFileList(d.workSchedule) : renderEmptyState("Waiting for the monthly work schedule — send the file(s) or link and I'll list them here.")}
+      </div>
+
+      <div class="bp-panel bp-hr-section">
+        ${renderSectionHead(5, "Company Holidays", "Officially signed holiday list")}
+        ${renderHolidays(d.holidays)}
+      </div>
+
+      <div class="bp-panel">
+        ${renderSectionHead(6, "Other HR Documents", "Everything else relevant to HR")}
+        ${renderFileList(d.files, { search: true, searchId: "bpHrSearch" })}
+      </div>
+    `;
+    attachSearch("bpHrSearch");
+    tightenOrgRows(main);
+  }
+
+  // The connector bar should stop exactly where the outermost children's
+  // own vertical stems meet it (their horizontal centers) — not extend all
+  // the way out to their outer box edges. Measure the real rendered
+  // positions of the top line of children and position a dedicated bar
+  // element to span only from the first child's center to the last child's
+  // center, independent of the row's own (auto-sized) box.
+  function tightenOrgRows(root) {
+    root.querySelectorAll(".bp-org-children-row").forEach(row => {
+      const bar = row.querySelector(":scope > .bp-org-bar");
+      const kids = Array.from(row.children).filter(k => k !== bar);
+      if (!bar || kids.length < 2) { if (bar) bar.style.display = "none"; return; }
+      const rowRect = row.getBoundingClientRect();
+      const topKey = Math.min(...kids.map(k => Math.round(k.getBoundingClientRect().top)));
+      const centers = kids
+        .map(k => k.getBoundingClientRect())
+        .filter(r => Math.round(r.top) === topKey)
+        .map(r => r.left + r.width / 2 - rowRect.left);
+      const left = Math.min(...centers);
+      const right = Math.max(...centers);
+      bar.style.left = left + "px";
+      bar.style.width = (right - left) + "px";
+    });
+  }
+
+  function renderDeptPage(deptKey) {
+    if (deptKey === "hr") { renderHrPage(); return; }
+    const d = departments[deptKey];
+    const role = roleOf(currentUser);
+    const main = document.getElementById("bpMain");
+    const hasSb = !!d.bySubBranch;
+    const managerLevel = !role.dept;
+    // Manager/ABM roles default to the combined view regardless of their own
+    // home sub-branch — only a dept-scoped role is pinned to their own branch.
+    const selection = hasSb ? ((!managerLevel && currentUser.subBranch) || deptSubBranchSelection[deptKey] || "all") : null;
+    const view = getDeptViewData(deptKey, selection);
+    const showSelector = hasSb && managerLevel;
+    const chip = !managerLevel && hasSb && currentUser.subBranch ? `<span class="bp-subbranch-chip">${sbLabel(currentUser.subBranch)}</span>` : "";
+
+    main.innerHTML = `
+      <div class="bp-page-title"><h2>${d.title}${chip}</h2><p>${d.subtitle}</p></div>
+      ${showSelector ? `
+        <div class="bp-subbranch-selector">
+          <label>Viewing</label>
+          <select id="bpSubBranchSelect">
+            <option value="all" ${selection === "all" ? "selected" : ""}>All Sub-Branches (combined)</option>
+            ${subBranches.map(sb => `<option value="${sb.id}" ${selection === sb.id ? "selected" : ""}>${sb.label}</option>`).join("")}
+          </select>
+        </div>` : ""}
+      ${renderTools(d.tools)}
+      ${renderKpis(view.kpis)}
+      <div class="bp-columns">
+        <div class="bp-panel">
+          ${view.table ? renderTable(view.table) : `<h3>Insights & Suggestions</h3><p class="bp-sub">Auto-flagged from this department's data</p>`}
+          ${view.table ? `<div style="margin-top:16px;"><h3 style="font-size:13.5px;">Suggestions</h3></div>` : ""}
+          ${renderSuggestions(view.suggestions, { showDept: hasSb && selection === "all" })}
+        </div>
+        <div class="bp-panel">
+          <h3>Files & Forms</h3>
+          <p class="bp-sub">Everything relevant to ${d.title}</p>
+          ${renderFileList(d.files, { search: true, searchId: "bpDeptSearch" })}
+        </div>
+      </div>
+      <div class="bp-sample-flag">✎ Sample data shown here — this would pull from your real Drive files and logs once connected.</div>
+    `;
+    attachSearch("bpDeptSearch");
+    if (showSelector) {
+      document.getElementById("bpSubBranchSelect").addEventListener("change", function() {
+        deptSubBranchSelection[deptKey] = this.value;
+        renderDeptPage(deptKey);
+      });
+    }
+  }
+
+  function renderAdminPage() {
+    const main = document.getElementById("bpMain");
+    main.innerHTML = `
+      <div class="bp-page-title"><h2>Staff & Roles</h2><p>Manage each staff member's role and sub-branch assignment</p></div>
+      <div class="bp-panel">
+        <h3>Staff directory</h3>
+        <p class="bp-sub">Only the Branch Manager can change this. Updating a role or sub-branch changes what that person sees next time they sign in.</p>
+        <table class="bp-admin-table">
+          <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Sub-Branch</th></tr></thead>
+          <tbody>
+            ${directory.map((u, i) => {
+              const r = roleOf(u);
+              return `
+              <tr>
+                <td>${u.name}</td>
+                <td style="font-family: var(--font-mono); font-size: 10.5px; color: var(--slate);">${u.email}</td>
+                <td>
+                  <select class="bp-role-dropdown" data-index="${i}" data-field="role">
+                    ${roles.map(ro => `<option value="${ro.id}" ${ro.id === u.roleId ? "selected" : ""}>${ro.label}</option>`).join("")}
+                  </select>
+                </td>
+                <td id="bpSbCell${i}">
+                  ${r.dept ? `
+                    <select class="bp-role-dropdown" data-index="${i}" data-field="subbranch">
+                      ${subBranches.map(sb => `<option value="${sb.id}" ${sb.id === u.subBranch ? "selected" : ""}>${sb.label}</option>`).join("")}
+                    </select>` : `<span class="bp-subbranch-fixed">All branches</span>`}
+                </td>
+              </tr>`;
+            }).join("")}
+          </tbody>
+        </table>
+      </div>
+      <div class="bp-sample-flag">✎ Prototype: changes here apply only to this session. In the real version this would be a small admin list the Branch Manager edits, controlling real access the next time each person signs in.</div>
+    `;
+    document.querySelectorAll(".bp-role-dropdown").forEach(sel => {
+      sel.addEventListener("change", function() {
+        const idx = parseInt(this.dataset.index, 10);
+        const field = this.dataset.field;
+        if (field === "role") {
+          directory[idx].roleId = this.value;
+          if (!roleOf(directory[idx]).dept) directory[idx].subBranch = null;
+          else if (!directory[idx].subBranch) directory[idx].subBranch = "ssk";
+        } else {
+          directory[idx].subBranch = this.value;
+        }
+        if (directory[idx].email === currentUser.email) {
+          currentUser = directory[idx];
+          document.getElementById("bpIdentityRole").textContent = roleOf(currentUser).label + (currentUser.subBranch ? " · " + sbLabel(currentUser.subBranch) : "");
+          renderNav(currentUser);
+        }
+        renderAdminPage();
+      });
+    });
+  }
+
+  function renderHome() {
+    const role = roleOf(currentUser);
+    const main = document.getElementById("bpMain");
+
+    if (!role.dept) {
+      const flagshipKpis = [
+        Object.assign({}, aggregateKpi("collection", 0, "avg"), { dept: "Collection" }),
+        Object.assign({}, aggregateKpi("finance", 0, "sum"), { dept: "Finance" }),
+        Object.assign({}, departments.hr.kpis[2], { dept: "HR" }),
+        Object.assign({}, aggregateKpi("cs", 0, "sum"), { dept: "Customer Service" }),
+        Object.assign({}, departments.admin.kpis[0], { dept: "Admin" }),
+      ];
+      const mixedSuggestions = [
+        topSuggestionAcrossBranches("collection"),
+        topSuggestionAcrossBranches("finance"),
+        Object.assign({}, departments.hr.suggestions[0], { dept: "HR" }),
+        topSuggestionAcrossBranches("cs"),
+        Object.assign({}, departments.admin.suggestions[0], { dept: "Admin" }),
+      ];
+      const mixedFiles = Object.keys(departments).map(k => Object.assign({}, departments[k].files[0], { dept: departments[k].title }));
+
+      main.innerHTML = `
+        <div class="bp-page-title"><h2>Good day, ${currentUser.name}</h2><p>${role.label} · Combined view across SSK Main Branch, Big C Mahachai Service Center & Khok Kham Service Center</p></div>
+        ${renderKpis(flagshipKpis, { showDept: true })}
+        <div class="bp-columns">
+          <div class="bp-panel">
+            <h3>Today across the network</h3>
+            <p class="bp-sub">Top flag from each department</p>
+            ${renderSuggestions(mixedSuggestions, { showDept: true })}
+          </div>
+          <div class="bp-panel">
+            <h3>Recently updated</h3>
+            <p class="bp-sub">One highlight file per department</p>
+            <ul class="bp-doc-list">
+              ${mixedFiles.map(f => `<li class="bp-doc">${fileIcon(f)}<div><div>${f.name}</div><div class="bp-doc-meta">${f.dept} · Updated ${f.updated}</div></div></li>`).join("")}
+            </ul>
+          </div>
+        </div>
+        <div class="bp-sample-flag">✎ Sample data shown here — this would pull from your real Drive files and logs once connected. Open any department tab to drill into a specific sub-branch.</div>
+      `;
+      return;
+    }
+
+    const d = departments[role.dept];
+    const sd = d.bySubBranch ? d.bySubBranch[currentUser.subBranch] : d;
+    main.innerHTML = `
+      <div class="bp-page-title"><h2>Good day, ${currentUser.name}<span class="bp-subbranch-chip">${sbLabel(currentUser.subBranch)}</span></h2><p>${role.label} — here's what's relevant to you today</p></div>
+      ${renderKpis(sd.kpis.slice(0, 3))}
+      <div class="bp-columns">
+        <div class="bp-panel">
+          <h3>For you today</h3>
+          <p class="bp-sub">Suggestions from ${d.title} data at ${sbLabel(currentUser.subBranch)}</p>
+          ${renderSuggestions(sd.suggestions.slice(0, 2))}
+        </div>
+        <div class="bp-panel">
+          <h3>Your quick files</h3>
+          <p class="bp-sub">Most-used in ${d.title}</p>
+          ${renderFileList(d.files.slice(0, 4))}
+          <button class="bp-open-link" id="bpOpenDeptLink">Open full ${d.title} workspace →</button>
+        </div>
+      </div>
+      <div class="bp-sample-flag">✎ Sample data shown here — this would pull from your real Drive files and logs once connected.</div>
+    `;
+    const link = document.getElementById("bpOpenDeptLink");
+    if (link) link.addEventListener("click", () => setActive(role.dept));
+  }
+
+  function setActive(navId) {
+    activeNav = navId;
+    document.querySelectorAll(".bp-nav-item").forEach(el => el.classList.toggle("active", el.dataset.nav === navId));
+    if (navId === "home") renderHome();
+    else if (navId === "staffroles") renderAdminPage();
+    else renderDeptPage(navId);
+  }
+})();
+</script>
+</body>
+</html>
