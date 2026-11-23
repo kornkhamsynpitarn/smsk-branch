@@ -795,6 +795,23 @@
     return `<div class="bp-org-chart">${renderOrgSection(root)}</div>`;
   }
 
+  // Monthly OT Form: the standalone OT app (github.io/OT/) shown inside HR section 3.
+  // Opens on the signed-in person's own form; anyone can pick a colleague.
+  // Only the Branch Manager gets edit access (edit=1); everyone else is view-only.
+  const OT_FORM_URL = "https://kornkhamsynpitarn.github.io/OT/";
+  function renderOtEmbed() {
+    const nick = currentUser ? extractEnglishNickname(currentUser.nickName) : "";
+    const canEdit = currentUser && currentUser.roleId === "manager";
+    const src = OT_FORM_URL + "?embed=1&edit=" + (canEdit ? "1" : "0") + "&nick=" + encodeURIComponent(nick);
+    return `<p style="margin:0 0 10px;font-size:12.5px;color:var(--slate)">${canEdit ? "You can correct entries before exporting." : "Your form opens first. Use the Employee list to view a colleague's form."}</p>
+      <iframe id="bpOtFrame" src="${src}" title="Monthly OT Form" style="width:100%;height:1100px;border:0;background:transparent" loading="lazy"></iframe>`;
+  }
+  window.addEventListener("message", function (e) {
+    if (e.origin !== "https://kornkhamsynpitarn.github.io" || !e.data || !e.data.otHeight) return;
+    const f = document.getElementById("bpOtFrame");
+    if (f) f.style.height = (e.data.otHeight + 8) + "px";
+  });
+
   function renderHolidays(holidays) {
     if (!holidays || !holidays.length) return renderEmptyState("Waiting for this year's officially signed holiday list.");
     return `<table class="bp-table">
@@ -1134,7 +1151,7 @@
 
       <div class="bp-panel bp-hr-section">
         ${renderSectionHead(3, "Monthly OT Form", "Submit overtime hours for the month")}
-        ${renderTools([d.otFormTool])}
+        ${renderOtEmbed()}
       </div>
 
       <div class="bp-panel bp-hr-section">
