@@ -853,6 +853,75 @@
       el.innerHTML = renderEmptyState("Couldn't load the announcements (" + err.message + "). You can still open the folder below.");
     }
   }
+
+    // Company holidays: formatted table, read live from the script (same source as the schedule).
+  function escHtml(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+  function renderHolidayShell() {
+    return `<style>
+      .bp-hol-sum{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+      .bp-hol-next{flex:1;min-width:230px;background:#FFF1DC;border:1px solid #F2C98A;border-radius:10px;padding:12px 14px}
+      .bp-hol-next small{display:block;font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#9A5B00}
+      .bp-hol-next b{font-family:var(--font-display);font-size:16px}
+      .bp-hol-yr{display:flex;gap:6px;margin-bottom:10px}
+      .bp-hol-yr button{font:inherit;font-size:12px;padding:5px 12px;border:1px solid var(--rule);border-radius:999px;background:#fff;cursor:pointer;color:var(--ink)}
+      .bp-hol-yr button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+      .bp-hol-mon{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--slate);margin:14px 0 2px}
+      .bp-hol-row{display:grid;grid-template-columns:54px 1fr auto;gap:12px;align-items:center;padding:8px 2px;border-bottom:1px solid var(--paper-dim)}
+      .bp-hol-date{text-align:center;background:#FFF1DC;border-radius:8px;padding:5px 0;line-height:1.1}
+      .bp-hol-date b{display:block;font-family:var(--font-display);font-size:18px}
+      .bp-hol-date span{font-family:var(--font-mono);font-size:9.5px;text-transform:uppercase;color:#9A5B00}
+      .bp-hol-name{font-size:13px;font-weight:600}
+      .bp-hol-dow{font-size:11.5px;color:var(--slate)}
+      .bp-hol-tag{font-family:var(--font-mono);font-size:10px;padding:2px 9px;border-radius:999px;background:var(--paper-dim);color:var(--slate);white-space:nowrap}
+      .bp-hol-row.past{opacity:.5}
+      .bp-hol-row.next .bp-hol-tag{background:#F2C98A;color:#5B3500}
+      .bp-hol-row.close .bp-hol-date{background:#F6D4CA}
+      .bp-hol-row.close .bp-hol-date span{color:var(--rust)}
+    </style>
+    <div class="bp-hol-yr" id="bpHolYears"></div><div id="bpHolBody"><div class="bp-checkin-summary">Loading…</div></div>`;
+  }
+  async function loadHolidays(year) {
+    const body = document.getElementById("bpHolBody"), yrs = document.getElementById("bpHolYears");
+    if (!body) return;
+    year = year || (new Date().getFullYear() === 2027 ? 2027 : 2026);
+    yrs.innerHTML = [2026, 2027].map(y => `<button data-y="${y}" class="${y === year ? "on" : ""}">${y}</button>`).join("");
+    yrs.querySelectorAll("button").forEach(b => b.addEventListener("click", () => loadHolidays(+b.dataset.y)));
+    body.innerHTML = `<div class="bp-checkin-summary">Loading…</div>`;
+    try {
+      const res = await fetch(KIOSK_API_URL + "?action=holidays&year=" + year);
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const list = await res.json();
+      if (list.error) throw new Error(list.error);
+      if (!list.length) { body.innerHTML = renderEmptyState("No holidays listed for " + year + " yet."); return; }
+      const MON = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+      const DOW = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+      const todayStr = todayDateStr(), t0 = new Date(todayStr + "T00:00:00");
+      const nextIdx = list.findIndex(h => h.date >= todayStr);
+      const dd = h => new Date(h.date + "T00:00:00");
+      const away = h => Math.round((dd(h) - t0) / 86400000);
+      let html = "";
+      if (nextIdx >= 0) {
+        const n = list[nextIdx], d = dd(n), k = away(n);
+        html += `<div class="bp-hol-sum"><div class="bp-hol-next"><small>Next holiday</small><b>${escHtml(n.name)}</b><div class="bp-hol-dow">${DOW[d.getDay()]} ${d.getDate()} ${MON[d.getMonth()]} · ${k === 0 ? "today" : "in " + k + " day" + (k === 1 ? "" : "s")}</div></div>
+          <div class="bp-hol-next" style="background:var(--paper-dim);border-color:var(--rule)"><small style="color:var(--slate)">${year}</small><b>${list.length} holidays</b></div></div>`;
+      } else {
+        html += `<div class="bp-hol-sum"><div class="bp-hol-next" style="background:var(--paper-dim);border-color:var(--rule)"><small style="color:var(--slate)">${year}</small><b>${list.length} holidays</b></div></div>`;
+      }
+      let lastMon = -1;
+      list.forEach((h, i) => {
+        const d = dd(h), k = away(h), m = d.getMonth();
+        if (m !== lastMon) { html += `<div class="bp-hol-mon">${MON[m]}</div>`; lastMon = m; }
+        const cls = (k < 0 ? "past" : (i === nextIdx ? "next" : "")) + (h.close ? " close" : "");
+        const tag = k < 0 ? "Passed" : (k === 0 ? "Today" : "in " + k + " d");
+        html += `<div class="bp-hol-row ${cls}"><div class="bp-hol-date"><b>${d.getDate()}</b><span>${MON[m].slice(0, 3)}</span></div>
+          <div><div class="bp-hol-name">${escHtml(h.name)}</div><div class="bp-hol-dow">${DOW[d.getDay()]}</div></div>
+          <span class="bp-hol-tag">${h.close ? "Office closed · " : ""}${tag}</span></div>`;
+      });
+      body.innerHTML = html + '<p class="bp-sub" style="margin-top:12px">Staff working on a public holiday are entitled to overtime pay under the law. On “Office closed” dates there is no disbursement or client interaction. If a weekly rest day falls on a holiday, a substitute day is given on the next working day.</p>';
+    } catch (err) {
+      body.innerHTML = renderEmptyState("Couldn't load the holidays (" + err.message + ").");
+    }
+  }
   
   function renderHolidays(holidays) {
     if (!holidays || !holidays.length) return renderEmptyState("Waiting for this year's officially signed holiday list.");
@@ -1203,7 +1272,7 @@
 
       <div class="bp-panel bp-hr-section">
         ${renderSectionHead(5, "Company Holidays", "Officially signed holiday list")}
-        ${renderHolidays(d.holidays)}
+        ${renderHolidayShell()}
       </div>
 
       <div class="bp-panel bp-hr-section">
@@ -1219,6 +1288,7 @@
     attachSearch("bpHrSearch");
     tightenOrgRows(main);
     loadAnnouncements();
+        loadHolidays();
     initCheckinSection();
   }
 
