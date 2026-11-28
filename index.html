@@ -811,7 +811,23 @@
     const f = document.getElementById("bpOtFrame");
     if (f) f.style.height = (e.data.otHeight + 8) + "px";
   });
-
+  
+  // Employee Work Schedule: the standalone schedule app shown inside HR section 4.
+  // Everyone sees their own row highlighted; only Branch Manager / ABM get edit access.
+  const SCHEDULE_URL = "https://kornkhamsynpitarn.github.io/work_schedule/";
+  function renderScheduleEmbed() {
+    const nick = currentUser ? extractEnglishNickname(currentUser.nickName) : "";
+    const canEdit = currentUser && (currentUser.roleId === "manager" || currentUser.roleId === "assistantmanager");
+    const src = SCHEDULE_URL + "?embed=1&edit=" + (canEdit ? "1" : "0") + "&nick=" + encodeURIComponent(nick);
+    return `<p style="margin:0 0 10px;font-size:12.5px;color:var(--slate)">${canEdit ? "Click a day to change it. You'll be asked for the editing passcode once." : "Tap a coloured day for details. Your own row is highlighted."}</p>
+      <iframe id="bpScheduleFrame" src="${src}" title="Employee Work Schedule" style="width:100%;height:760px;border:0;background:transparent" loading="lazy"></iframe>`;
+  }
+  window.addEventListener("message", function (e) {
+    if (e.origin !== "https://kornkhamsynpitarn.github.io" || !e.data || !e.data.scheduleHeight) return;
+    const f = document.getElementById("bpScheduleFrame");
+    if (f) f.style.height = (e.data.scheduleHeight + 8) + "px";
+  });
+  
   function renderHolidays(holidays) {
     if (!holidays || !holidays.length) return renderEmptyState("Waiting for this year's officially signed holiday list.");
     return `<table class="bp-table">
@@ -1156,7 +1172,7 @@
 
       <div class="bp-panel bp-hr-section">
         ${renderSectionHead(4, "Employee Work Schedule", "Monthly shift schedule")}
-        ${d.workSchedule.length ? renderFileList(d.workSchedule) : renderEmptyState("Waiting for the monthly work schedule — send the file(s) or link and I'll list them here.")}
+                ${renderScheduleEmbed()}
       </div>
 
       <div class="bp-panel bp-hr-section">
