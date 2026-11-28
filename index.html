@@ -827,6 +827,32 @@
     const f = document.getElementById("bpScheduleFrame");
     if (f) f.style.height = (e.data.scheduleHeight + 8) + "px";
   });
+
+    // Head office holiday announcements: listed live from the shared Drive folder.
+  const HOLIDAY_FOLDER_URL = "https://drive.google.com/drive/folders/1fMRGqNl2S4rQsFphrWN5GTMOXzzaN_TZ";
+  function escHtml(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+  function renderAnnouncementsShell() {
+    return `<div id="bpAnnounceList"><div class="bp-checkin-summary">Loading…</div></div>
+      <a class="bp-tool-open" href="${HOLIDAY_FOLDER_URL}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:10px;">Open the full folder →</a>`;
+  }
+  async function loadAnnouncements() {
+    const el = document.getElementById("bpAnnounceList");
+    if (!el) return;
+    try {
+      const res = await fetch(KIOSK_API_URL + "?action=announcements");
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      if (!data.length) { el.innerHTML = renderEmptyState("No announcements have been uploaded to the folder yet."); return; }
+      el.innerHTML = `<ul class="bp-doc-list">${data.map(f => `
+        <li class="bp-doc"><a href="${escHtml(f.url)}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;gap:10px;color:inherit;text-decoration:none;width:100%;">
+          ${fileIcon({ type: f.type })}
+          <div><div>${escHtml(f.name)}</div><div class="bp-doc-meta">${f.group ? escHtml(f.group) + " · " : ""}Updated ${escHtml(f.updated)}</div></div>
+        </a></li>`).join("")}</ul>`;
+    } catch (err) {
+      el.innerHTML = renderEmptyState("Couldn't load the announcements (" + err.message + "). You can still open the folder below.");
+    }
+  }
   
   function renderHolidays(holidays) {
     if (!holidays || !holidays.length) return renderEmptyState("Waiting for this year's officially signed holiday list.");
@@ -1180,13 +1206,19 @@
         ${renderHolidays(d.holidays)}
       </div>
 
+      <div class="bp-panel bp-hr-section">
+        ${renderSectionHead(6, "Head Office Holiday Announcements", "Official announcements from head office")}
+        ${renderAnnouncementsShell()}
+      </div>
+
       <div class="bp-panel">
-        ${renderSectionHead(6, "Other HR Documents", "Everything else relevant to HR")}
+        ${renderSectionHead(7, "Other HR Documents", "Everything else relevant to HR")}
         ${renderFileList(d.files, { search: true, searchId: "bpHrSearch" })}
       </div>
     `;
     attachSearch("bpHrSearch");
     tightenOrgRows(main);
+    loadAnnouncements();
     initCheckinSection();
   }
 
